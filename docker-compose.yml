@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # PHP Service (App Container)
+  app:
+    image: php:8.1-apache
+    container_name: php-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - app-network
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=blog_app
+      - DB_USERNAME=root
+      - DB_PASSWORD=password
+    depends_on:
+      - db
+
+  # MySQL Service
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: blog_app
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  # Apache Web Server (PHP and Apache with SSL)
+  apache:
+    image: php:8.1-apache
+    container_name: apache-web
+    volumes:
+      - ./src:/var/www/html
+      - ./src/apache.conf:/etc/apache2/sites-available/000-default.conf
+      - ./src/ssl:/etc/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - app-network
+    depends_on:
+      - app
+      - certbot
+
+  # Certbot (Let's Encrypt SSL)
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./src/ssl:/etc/ssl
+      - ./src/certbot/conf:/etc/letsencrypt
+      - ./src/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - app-network
+    depends_on:
+      - apache
+
+  # Nginx reverse proxy (optional but helps to redirect HTTP to HTTPS)
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    volumes:
+      - ./src/nginx.conf:/etc/nginx/nginx.conf
+      - ./src/ssl:/etc/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - app-network
+    depends_on:
+      - apache
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge
