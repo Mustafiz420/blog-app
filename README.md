@@ -1,66 +1,60 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Blog Application with Docker and CI/CD
+Overview
+This project is a Laravel-based blog application that leverages Docker for easy environment setup and GitHub Actions for CI/CD integration. It includes a PHP application running on Apache, a MySQL database, SSL certificate handling with Certbot, and optionally an Nginx reverse proxy for HTTP to HTTPS redirection.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Prerequisites
+Docker: Make sure Docker is installed on your machine. Follow the installation instructions for your operating system at Docker's website.
+Docker Compose: Ensure you have Docker Compose installed. It typically comes with Docker Desktop installations.
+Running the Application Locally
+Clone the Repository:
 
-## About Laravel
+https://github.com/Mustafiz420/blog-app.git
+cd blog-app
+Set Up the Environment:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Copy the example environment configuration:
+cp .env.example .env
+Open .env file and modify the necessary keys if needed, especially database credentials.
+Run Docker Compose:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Build and start the containers:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+docker-compose up --build
+This command will start all services defined in your docker-compose.yml, including PHP (with Apache), MySQL, Certbot, and optionally Nginx.
+Access the Application:
 
-## Learning Laravel
+Open your web browser and visit http://localhost:80 for HTTP or https://localhost:443 for HTTPS (if SSL is configured with a valid domain instead of localhost).
+CI/CD Setup
+The CI/CD pipeline is set up with GitHub Actions to automate building, testing, and deploying the application.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Workflow Steps
+Building and Testing:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Upon a push or pull request to the main branch, the following steps are executed:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Check Out Repository: Clone the repository to the runner.
+Set Up Docker Buildx: Ensure Docker is ready to build images.
+Cache Docker Layers: Save and restore the build cache to speed up subsequent builds.
+Build Docker Image: Compose and build services defined in docker-compose.yml.
+Run Tests: Execute Laravel tests within the app container.
+Deployment:
 
-## Laravel Sponsors
+If the build succeeds, the deploy job is triggered:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Set Up SSH for Secure Deployment: Access the remote server using SSH keys stored in GitHub Secrets.
+Deploy to DigitalOcean Droplet: Connect to your server and deploy with Docker Compose.
+Ensure your DigitalOcean Droplet (or other servers) is correctly configured to run Docker and has the necessary file permissions and SSH access. Adjust the server IP and path in the deploy job as required.
 
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Security Considerations
+Configure your .env file securely and prevent it from being shared or leaked.
+Use strong secrets and consider rotating them regularly.
+For production, ensure SSL certificates are correctly configured with real domains.
+Optional Enhancements
+Integrate alerts for CI/CD status using tools like Slack or email notifications.
+Implement more advanced testing, including integration or end-to-end tests.
+Utilize monitoring tools to track application performance in production.
+Notes
+Adapt Environment: The instructions assume usage of localhost. If deploying, ensure domain names and SSL certificates are configured for your environment.
+Secrets Management: Store sensitive information like SSH keys and Docker Hub credentials in GitHub Actions Secrets for security.
+SSH Configuration: SSH configurations should be adjusted as necessary to match your infrastructure and security protocols.
+env s
