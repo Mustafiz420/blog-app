@@ -26,7 +26,10 @@ class PostController extends Controller
     {
         $posts = $this->postService->getAllPosts();
 
-        return response()->json($posts);
+        return response()->json([
+            'success' => true,
+            'data' => $posts,
+        ], 200);
     }
 
     /**
@@ -39,7 +42,10 @@ class PostController extends Controller
     {
         $post = $this->postService->createPost($request->validated());
 
-        return response()->json($post, 201);
+        return response()->json([
+            'success' => true,
+            'data' => $post,
+        ], 201);
     }
 
     /**
@@ -50,7 +56,10 @@ class PostController extends Controller
      */
     public function show(Post $post): JsonResponse
     {
-        return response()->json($post);
+        return response()->json([
+            'success' => true,
+            'data' => $post,
+        ], 200);
     }
 
     /**
@@ -62,9 +71,12 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post): JsonResponse
     {
-        $post = $this->postService->updatePost($post, $request->validated());
+        $updatedPost = $this->postService->updatePost($post, $request->validated());
 
-        return response()->json($post);
+        return response()->json([
+            'success' => true,
+            'data' => $updatedPost,
+        ], 200);
     }
 
     /**
@@ -77,6 +89,9 @@ class PostController extends Controller
     {
         $this->postService->deletePost($post);
 
-        return response()->json(null, 204);
+        return response()->json([
+            'success' => true,
+            'message' => 'Post deleted successfully.',
+        ], 204);
     }
 }

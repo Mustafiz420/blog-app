@@ -57,4 +57,4 @@ Notes
 Adapt Environment: The instructions assume usage of localhost. If deploying, ensure domain names and SSL certificates are configured for your environment.
 Secrets Management: Store sensitive information like SSH keys and Docker Hub credentials in GitHub Actions Secrets for security.
 SSH Configuration: SSH configurations should be adjusted as necessary to match your infrastructure and security protocols.
-env s
+
